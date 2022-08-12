@@ -1,0 +1,10 @@
+# Lock files
+yarn.lock
+package-lock.json
+
+# extensions config files
+.prettierrc
+
+# Directories
+node_modules/
+.vscode/
