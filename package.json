@@ -6,11 +6,12 @@
   "author": "Danilod de Maria <daniloctg@msn.com>",
   "license": "MIT",
   "scripts": {
-    "dev": "nodemon index.js",
-    "start": "node index.js"
+    "dev": "env NODE_ENV=dev nodemon index.ks",
+    "start": "env NODE_ENV=dev node index.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
+    "custom-env": "^2.0.1",
     "dotenv": "^16.0.1",
     "express": "^4.18.1",
     "moment": "^2.29.4",
