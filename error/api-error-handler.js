@@ -13,7 +13,7 @@ const apiErrorHandler = async (err, req, res, next) => {
      Request body: ${JSON.stringify(req.body, null, 4)} -
      Request headers: ${JSON.stringify(req.headers, null, 4)} -
      Request base url: ${req.baseUrl} - 
-     Complete error: ${JSON.stringify(err, null, 4)}`,
+     Complete error: ${JSON.stringify(err, null, 4)}`
   );
   return res.status(500).json('Something went wrong.');
 };

@@ -5,8 +5,13 @@ const databaseConfig = require('../config/database');
 const attach = (config) => {
   return new Promise((resolve, reject) => {
     Firebird.attach(config, (err, db) => {
-      if (err) reject(err);
-      else resolve(db);
+      if (err) {
+        reject(err);
+        throw ApiError.badRequest({
+          message: 'Erro ao conectar banco de dados',
+          err,
+        });
+      } else resolve(db);
     });
   });
 };
@@ -14,8 +19,10 @@ const attach = (config) => {
 const query = (db, sql) => {
   return new Promise((resolve, reject) => {
     db.query(sql, (err, result) => {
-      if (err) reject(err);
-      else resolve(result);
+      if (err) {
+        reject(err);
+        throw ApiError.badRequest({ message: 'Erro na consulta', err });
+      } else resolve(result);
     });
   });
 };
@@ -27,6 +34,7 @@ const executeQuery = async (sql) => {
     idcliforemp,
     idcodigoagrupa,
   }));
+  db.detach();
   return { ids, result };
 };
 
