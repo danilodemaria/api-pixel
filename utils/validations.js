@@ -1,4 +1,5 @@
 const { cpf, cnpj } = require('cpf-cnpj-validator');
+const ApiError = require('../error/ApiError');
 
 const validateAndFormatDocument = (document) => {
   const rawDocument = document.replace(/[^\d]/g, '');

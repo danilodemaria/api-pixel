@@ -19,7 +19,7 @@
     "mysql2": "^2.3.3",
     "node-firebird": "^1.0.0",
     "sequelize": "^6.21.3",
-    "winston": "^3.8.2"
+    "winston": "^3.3.3"
   },
   "devDependencies": {
     "nodemon": "^2.0.19"
