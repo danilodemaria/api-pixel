@@ -15,7 +15,11 @@ router.get('/:document', async (req, res, next) => {
     const columnDatabase = document_type === 'CPF' ? 'CPF' : 'CNPJ';
     const query = `SELECT IDCLIFOREMP,TIPOCLIFOREMP, FANTASIA, RAZAO, IDCODIGOAGRUPA FROM CLIFOREMP WHERE ${columnDatabase}='${rawDocument}' `;
     const databaseResponse = await executeQuery(query);
-    return res.status(200).send(databaseResponse);
+    const ids = databaseResponse.map(({ idcliforemp, idcodigoagrupa }) => ({
+      idcliforemp,
+      idcodigoagrupa,
+    }));
+    return res.status(200).send({ ids, databaseResponse });
   } catch (error) {
     if (error instanceof ApiError) return res.status(error.code).send(error);
     return next(
