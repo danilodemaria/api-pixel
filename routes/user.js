@@ -1,20 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const Firebird = require('node-firebird');
-const { getOS } = require('../querys/getOs');
-const { cpf, cnpj } = require('cpf-cnpj-validator');
-
-const validateAndFormatDocument = (document) => {
-  const rawDocument = document.replace(/[^\d]/g, '');
-  const type = rawDocument.length === 11 ? 'CPF' : 'CNPJ';
-  const valid =
-    type === 'CPF' ? cpf.isValid(rawDocument) : cnpj.isValid(rawDocument);
-  if (!valid) throw ApiError.badRequest('Documento inválido');
-  return {
-    document_type: type,
-    rawDocument,
-  };
-};
+const { validateAndFormatDocument } = require('../utils/validations');
+const ApiError = require('../error/ApiError');
 
 router.get('/:document', async (req, res) => {
   const {
@@ -31,26 +19,37 @@ router.get('/:document', async (req, res) => {
     role: process.env.DATABASE_ROLE,
     pageSize: process.env.DATABASE_PAGE_SIZE,
   };
-  const { document_type, rawDocument } = validateAndFormatDocument(document);
-  const columnDatabase = document_type === 'CPF' ? CPF : 'CNPJ';
-  const query = `SELECT IDCLIFOREMP,TIPOCLIFOREMP, FANTASIA, RAZAO, IDCODIGOAGRUPA FROM CLIFOREMP WHERE ${columnDatabase}='${rawDocument}' `;
+  try {
+    const { document_type, rawDocument } = validateAndFormatDocument(document);
+    const columnDatabase = document_type === 'CPF' ? 'CPF' : 'CNPJ';
+    const query = `SELECT IDCLIFOREMP,TIPOCLIFOREMP, FANTASIA, RAZAO, IDCODIGOAGRUPA FROM CLIFOREMP WHERE ${columnDatabase}='${rawDocument}' `;
+    console.log(query);
+    Firebird.attach(options, function (err, db) {
+      if (err) {
+        console.log(err);
+        return res.status(500).send({ message: 'Erro na consulta', err });
+      }
 
-  Firebird.attach(options, function (err, db) {
-    if (err) {
-      console.log(err);
-      return res.status(500).send({ message: 'Erro na consulta', err });
-    }
-
-    db.query(query, function (err, result) {
-      // IMPORTANT: close the connection
-      const ids = result.map(({ idcliforemp, idcodigoagrupa }) => ({
-        idcliforemp,
-        idcodigoagrupa,
-      }));
-      db.detach();
-      return res.status(200).send({ ids, result });
+      db.query(query, function (err, result) {
+        // IMPORTANT: close the connection
+        const ids = result.map(({ idcliforemp, idcodigoagrupa }) => ({
+          idcliforemp,
+          idcodigoagrupa,
+        }));
+        db.detach();
+        return res.status(200).send({ ids, result });
+      });
     });
-  });
+  } catch (error) {
+    if (error instanceof ApiError) return res.status(error.code).send(error);
+    return next(
+      ApiError.internalservererror(
+        `Internal Server Error, ${Object.keys(
+          req.route.methods
+        )[0].toUpperCase()}: ${req.originalUrl}`
+      )
+    );
+  }
 });
 
 module.exports = router;
