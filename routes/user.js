@@ -1,5 +1,6 @@
-const ApiError = require('../error/ApiError');
 const express = require('express');
+const ApiError = require('../error/ApiError');
+
 const router = express.Router();
 const { validateAndFormatDocument } = require('../utils/validations');
 const { executeQuery } = require('../database/executeQuery');
@@ -20,9 +21,9 @@ router.get('/:document', async (req, res, next) => {
     return next(
       ApiError.internalservererror(
         `Internal Server Error, ${Object.keys(
-          req.route.methods
-        )[0].toUpperCase()}: ${req.originalUrl}`
-      )
+          req.route.methods,
+        )[0].toUpperCase()}: ${req.originalUrl}`,
+      ),
     );
   }
 });

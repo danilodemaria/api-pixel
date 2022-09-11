@@ -7,7 +7,8 @@
   "license": "MIT",
   "scripts": {
     "dev": "env NODE_ENV=dev nodemon index.ks",
-    "start": "env NODE_ENV=dev nodemon index.js"
+    "start": "env NODE_ENV=dev nodemon index.js",
+    "clean:workspace": "rm -rf node_modules/ && rm -rf yarn.lock && rm -rf package-lock.json && yarn"
   },
   "dependencies": {
     "cors": "^2.8.5",
@@ -21,7 +22,20 @@
     "sequelize": "^6.21.3",
     "winston": "^3.3.3"
   },
+  "lint-staged": {
+    "*.js": "eslint --fix"
+  },
+  "pre-commit": [
+    "lint-staged"
+  ],
   "devDependencies": {
-    "nodemon": "^2.0.19"
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.25.2",
+    "eslint": "^7.32.0 || ^8.2.0",
+    "git-commit-msg-linter": "^3.1.0",
+    "lint-staged": "^10.5.4",
+    "nodemon": "^2.0.19",
+    "prettier": "^2.2.1"
   }
 }
