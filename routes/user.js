@@ -1,10 +1,9 @@
 const express = require('express');
 const ApiError = require('../error/ApiError');
-
 const router = express.Router();
 const { validateAndFormatDocument } = require('../utils/validations');
 const { executeQuery } = require('../database/executeQuery');
-
+const { getOS } = require('../querys/getOs');
 router.get('/:document', async (req, res, next) => {
   const {
     params: { document },
@@ -12,6 +11,7 @@ router.get('/:document', async (req, res, next) => {
 
   try {
     const { document_type, rawDocument } = validateAndFormatDocument(document);
+
     const columnDatabase = document_type === 'CPF' ? 'CPF' : 'CNPJ';
     const query = `SELECT IDCLIFOREMP,TIPOCLIFOREMP, FANTASIA, RAZAO, IDCODIGOAGRUPA FROM CLIFOREMP WHERE ${columnDatabase}='${rawDocument}' `;
     const databaseResponse = await executeQuery(query);
@@ -19,7 +19,9 @@ router.get('/:document', async (req, res, next) => {
       idcliforemp,
       idcodigoagrupa,
     }));
-    return res.status(200).send({ ids, databaseResponse });
+    const queryBuilder = getOS(ids[0].idcliforemp, ids[0].idcodigoagrupa);
+    const openedOS = await executeQuery(queryBuilder);
+    return res.status(200).send(openedOS);
   } catch (error) {
     if (error instanceof ApiError) return res.status(error.code).send(error);
     return next(
